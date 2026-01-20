@@ -1,0 +1,49 @@
+name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Build on Linux
+        run: ./build.sh ${{env.BUILD_TYPE}}
+      - name: Run tests on Linux
+        run: ./build/tests/dcmtkhtj2k_tests
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcmtk-htj2k-build-linux
+          path: |
+            build/${{env.BUILD_TYPE}}
+          compression-level: 9
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Build on macOS
+        run: ./build.sh ${{env.BUILD_TYPE}}
+      - name: Run tests on macOS
+        run: ./build/tests/dcmtkhtj2k_tests
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcmtk-htj2k-build-osx
+          path: |
+            build/${{env.BUILD_TYPE}}
+          compression-level: 9

@@ -1,0 +1,38 @@
+#-----------------------------------------------------------------------------
+#
+# DCMTKHTJ2KConfig.cmake - CMake configuration file for external projects.
+#
+# This file is configured by DCMTKHTJ2K and used by the UseDCMTKHTJ2K.cmake
+# module to load DCMTKHTJ2K's settings for an external project.
+@DCMTKHTJ2K_CONFIG_INSTALL_ONLY@
+# The DCMTKHTJ2K version number.
+#set(DCMTKHTJ2K_MAJOR_VERSION "@DCMTKHTJ2K_VERSION_MAJOR@")
+#set(DCMTKHTJ2K_MINOR_VERSION "@DCMTKHTJ2K_VERSION_MINOR@")
+#set(DCMTKHTJ2K_BUILD_VERSION "@DCMTKHTJ2K_VERSION_BUILD@")
+
+set(DCMTKHTJ2K_LIBRARIES DCMTKHTJ2K)
+
+# The configuration options.
+set(DCMTKHTJ2K_BUILD_SHARED_LIBS "@BUILD_SHARED_LIBS@")
+
+get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+if(EXISTS ${SELF_DIR}/DCMTKHTJ2KTargets.cmake)
+  # This is an install tree
+  include(${SELF_DIR}/DCMTKHTJ2KTargets.cmake)
+  get_filename_component(DCMTKHTJ2K_INCLUDE_ROOT "${SELF_DIR}/../../../include" ABSOLUTE)
+  set(DCMTKHTJ2K_INCLUDE_DIRS ${DCMTKHTJ2K_INCLUDE_ROOT})  
+else()
+  if(EXISTS ${SELF_DIR}/DCMTKHTJ2KExports.cmake)
+    # This is a build tree
+    set( DCMTKHTJ2K_INCLUDE_DIRS "@CMAKE_SOURCE_DIR@/include")
+
+    include(${SELF_DIR}/DCMTKHTJ2KExports.cmake)
+
+  else()
+    message(FATAL_ERROR "ooops")
+  endif()
+endif()
+
+# Backward compatible part:
+set(DCMTKHTJ2K_FOUND       TRUE)
+message(STATUS "Found DCMTKHTJ2K: ${DCMTKHTJ2K_LIBRARIES}")
