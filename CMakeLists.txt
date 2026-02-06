@@ -32,13 +32,13 @@ set(DCMTKHTJ2K_HEADERS
 
 set(DCMTKHTJ2K_SRCS
     ${DCMTKHTJ2K_HEADERS}
-	djcodecd.cc
-	djcodece.cc
-	djcparam.cc
-	djdecode.cc
-	djencode.cc
-	djrparam.cc
-	djutils.cc
+	libsrc/djcodecd.cc
+	libsrc/djcodece.cc
+	libsrc/djcparam.cc
+	libsrc/djdecode.cc
+	libsrc/djencode.cc
+	libsrc/djrparam.cc
+	libsrc/djutils.cc
 )
 
 if (MSVC)
@@ -113,9 +113,7 @@ install(
     Devel
 )
 
-# Testing
 option(BUILD_TESTING "Build the testing tree" ON)
-
 if(BUILD_TESTING)
   enable_testing()
   

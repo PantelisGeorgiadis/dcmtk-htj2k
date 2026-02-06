@@ -36,7 +36,7 @@ cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
          -DDCMTK_WITH_WRAP=OFF \
          -DBUILD_APPS=OFF \
          -DCMAKE_INSTALL_PREFIX=$OTS_DEV_SPACE/dcmtk/$BUILD_TYPE
-cmake --build . --config $BUILD_TYPE
+cmake --build . --parallel $(nproc) --config $BUILD_TYPE
 cmake --install . --config $BUILD_TYPE
 
 cd $OTS_DEV_SPACE
@@ -51,7 +51,7 @@ cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
          -DBUILD_SHARED_LIBS=OFF \
          -DOJPH_BUILD_EXECUTABLES=OFF \
          -DCMAKE_INSTALL_PREFIX=$OTS_DEV_SPACE/openjph/$BUILD_TYPE
-cmake --build . --config $BUILD_TYPE
+cmake --build . --parallel $(nproc) --config $BUILD_TYPE
 cmake --install . --config $BUILD_TYPE
 
 mkdir -p $BUILD_DIR
@@ -64,5 +64,5 @@ cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
          -DOPENJPH_DIR=$OTS_DEV_SPACE/openjph/$BUILD_TYPE/lib/cmake/openjph \
          -DDCMTKHTJ2K_ROOT=$OTS_DEV_SPACE/dcmtkhtj2k/$BUILD_TYPE \
          -DCMAKE_INSTALL_PREFIX=$BUILD_DIR_LIB
-cmake --build . --config $BUILD_TYPE
+cmake --build . --parallel $(nproc) --config $BUILD_TYPE
 cmake --install . --config $BUILD_TYPE
