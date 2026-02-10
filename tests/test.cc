@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include <fstream>
 #include <vector>
 
 #include "dcmtk/dcmdata/dcdeftag.h"
@@ -22,6 +23,83 @@ struct TestLogConfig {
 };
 
 static TestLogConfig g_testLogConfig;
+
+void PopulateDatasetWithRequiredAttributes(
+    DcmDataset *dataset, Uint16 rows, Uint16 cols, Uint16 bitsAllocated,
+    Uint16 samplesPerPixel, OFString const &photometricInterpretation,
+    Uint16 pixelRepresentation) {
+  // Required image attributes
+  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_Rows, rows).good());
+  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_Columns, cols).good());
+  ASSERT_TRUE(
+      dataset->putAndInsertUint16(DCM_SamplesPerPixel, samplesPerPixel).good());
+  ASSERT_TRUE(dataset
+                  ->putAndInsertString(DCM_PhotometricInterpretation,
+                                       photometricInterpretation.c_str())
+                  .good());
+  ASSERT_TRUE(
+      dataset->putAndInsertUint16(DCM_BitsAllocated, bitsAllocated).good());
+  ASSERT_TRUE(
+      dataset->putAndInsertUint16(DCM_BitsStored, bitsAllocated).good());
+  ASSERT_TRUE(
+      dataset->putAndInsertUint16(DCM_HighBit, bitsAllocated - 1).good());
+  ASSERT_TRUE(
+      dataset->putAndInsertUint16(DCM_PixelRepresentation, pixelRepresentation)
+          .good());
+
+  // Minimal required UIDs
+  char studyUid[100];
+  char seriesUid[100];
+  char instanceUid[100];
+  dcmGenerateUniqueIdentifier(studyUid, SITE_STUDY_UID_ROOT);
+  dcmGenerateUniqueIdentifier(seriesUid, SITE_SERIES_UID_ROOT);
+  dcmGenerateUniqueIdentifier(instanceUid, SITE_INSTANCE_UID_ROOT);
+
+  ASSERT_TRUE(dataset
+                  ->putAndInsertString(DCM_SOPClassUID,
+                                       UID_SecondaryCaptureImageStorage)
+                  .good());
+  ASSERT_TRUE(
+      dataset->putAndInsertString(DCM_StudyInstanceUID, studyUid).good());
+  ASSERT_TRUE(
+      dataset->putAndInsertString(DCM_SeriesInstanceUID, seriesUid).good());
+  ASSERT_TRUE(
+      dataset->putAndInsertString(DCM_SOPInstanceUID, instanceUid).good());
+}
+
+void VerifyProgressionOrder(OFTempFile const &tmpFile,
+                            unsigned char const expectedProgressionOrder) {
+  // Open temp file in a buffer
+  std::ifstream input(tmpFile.getFilename(), std::ios::binary);
+  // Scan for JPEG 2000 COD marker (0xFF52)
+  bool foundCodMarker = false;
+  char byte1, byte2;
+  if (input.get(byte1)) {
+    while (input.get(byte2)) {
+      if (static_cast<unsigned char>(byte1) == 0xFF &&
+          static_cast<unsigned char>(byte2) == 0x52) {
+        foundCodMarker = true;
+        break;
+      }
+      byte1 = byte2;
+    }
+  }
+  ASSERT_TRUE(foundCodMarker);
+  // Get COD marker length (2 bytes after COD marker)
+  char codLength[2];
+  // COD segment length
+  ASSERT_TRUE(input.read(codLength, 2));
+  // COD coding style default (1 byte after COD marker)
+  char codingStyleDefault;
+  ASSERT_TRUE(input.read(&codingStyleDefault, 1));
+  // COD progression order (1 byte after coding style default)
+  char progressionOrder;
+  ASSERT_TRUE(input.read(&progressionOrder, 1));
+  // Verify progression order
+  ASSERT_TRUE(progressionOrder == expectedProgressionOrder);
+
+  input.close();
+}
 
 TEST(BasicTest, FrameworkWorks) {
   EXPECT_EQ(1 + 1, 2);
@@ -59,36 +137,9 @@ TEST(CodecTest, BasicMonochrome8BitUnsignedCompressDecompressLossless) {
   DcmFileFormat fileformat;
   DcmDataset *dataset = fileformat.getDataset();
 
-  // Required image attributes
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_Rows, rows).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_Columns, cols).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_SamplesPerPixel, 1).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_PhotometricInterpretation, "MONOCHROME2")
-          .good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_BitsAllocated, 8).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_BitsStored, 8).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_HighBit, 7).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_PixelRepresentation, 0).good());
-
-  // Minimal required UIDs
-  char studyUid[100];
-  char seriesUid[100];
-  char instanceUid[100];
-  dcmGenerateUniqueIdentifier(studyUid, SITE_STUDY_UID_ROOT);
-  dcmGenerateUniqueIdentifier(seriesUid, SITE_SERIES_UID_ROOT);
-  dcmGenerateUniqueIdentifier(instanceUid, SITE_INSTANCE_UID_ROOT);
-
-  ASSERT_TRUE(dataset
-                  ->putAndInsertString(DCM_SOPClassUID,
-                                       UID_SecondaryCaptureImageStorage)
-                  .good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_StudyInstanceUID, studyUid).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_SeriesInstanceUID, seriesUid).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_SOPInstanceUID, instanceUid).good());
+  // Populate dataset for an 8-bit monochrome image
+  PopulateDatasetWithRequiredAttributes(dataset, rows, cols, 8, 1,
+                                        "MONOCHROME2", 0);
 
   // Pixel data
   ASSERT_TRUE(
@@ -101,7 +152,8 @@ TEST(CodecTest, BasicMonochrome8BitUnsignedCompressDecompressLossless) {
   HtJ2kEncoderRegistration::registerCodecs();
   HtJ2kDecoderRegistration::registerCodecs();
 
-  const E_TransferSyntax htj2kLossless = EXS_HighThroughputJPEG2000LosslessOnly;
+  const E_TransferSyntax htj2kLossless =
+      EXS_HighThroughputJPEG2000withRPCLOptionsLosslessOnly;
   ASSERT_TRUE(dataset->chooseRepresentation(htj2kLossless, nullptr).good());
   ASSERT_TRUE(dataset->canWriteXfer(htj2kLossless));
 
@@ -110,6 +162,9 @@ TEST(CodecTest, BasicMonochrome8BitUnsignedCompressDecompressLossless) {
   ASSERT_TRUE(tempFile.getStatus().good());
   ASSERT_TRUE(
       fileformat.saveFile(tempFile.getFilename(), htj2kLossless).good());
+
+  // RPCL progression order [0x02]
+  VerifyProgressionOrder(tempFile, 0x02);
 
   // Read back
   DcmFileFormat readFile;
@@ -156,36 +211,9 @@ TEST(CodecTest, BasicMonochrome16BitUnsignedCompressDecompressLossless) {
   DcmFileFormat fileformat;
   DcmDataset *dataset = fileformat.getDataset();
 
-  // Required image attributes
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_Rows, rows).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_Columns, cols).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_SamplesPerPixel, 1).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_PhotometricInterpretation, "MONOCHROME2")
-          .good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_BitsAllocated, 16).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_BitsStored, 16).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_HighBit, 15).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_PixelRepresentation, 0).good());
-
-  // Minimal required UIDs
-  char studyUid[100];
-  char seriesUid[100];
-  char instanceUid[100];
-  dcmGenerateUniqueIdentifier(studyUid, SITE_STUDY_UID_ROOT);
-  dcmGenerateUniqueIdentifier(seriesUid, SITE_SERIES_UID_ROOT);
-  dcmGenerateUniqueIdentifier(instanceUid, SITE_INSTANCE_UID_ROOT);
-
-  ASSERT_TRUE(dataset
-                  ->putAndInsertString(DCM_SOPClassUID,
-                                       UID_SecondaryCaptureImageStorage)
-                  .good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_StudyInstanceUID, studyUid).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_SeriesInstanceUID, seriesUid).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_SOPInstanceUID, instanceUid).good());
+  // Populate dataset for an 16-bit unsigned monochrome image
+  PopulateDatasetWithRequiredAttributes(dataset, rows, cols, 16, 1,
+                                        "MONOCHROME2", 0);
 
   // Pixel data
   ASSERT_TRUE(
@@ -207,6 +235,9 @@ TEST(CodecTest, BasicMonochrome16BitUnsignedCompressDecompressLossless) {
   ASSERT_TRUE(tempFile.getStatus().good());
   ASSERT_TRUE(
       fileformat.saveFile(tempFile.getFilename(), htj2kLossless).good());
+
+  // Default LRCP progression order [0x00]
+  VerifyProgressionOrder(tempFile, 0x00);
 
   // Read back
   DcmFileFormat readFile;
@@ -257,36 +288,9 @@ TEST(CodecTest, BasicMonochrome16BitSignedCompressDecompressLossless) {
   DcmFileFormat fileformat;
   DcmDataset *dataset = fileformat.getDataset();
 
-  // Required image attributes
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_Rows, rows).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_Columns, cols).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_SamplesPerPixel, 1).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_PhotometricInterpretation, "MONOCHROME2")
-          .good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_BitsAllocated, 16).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_BitsStored, 16).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_HighBit, 15).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_PixelRepresentation, 1).good());
-
-  // Minimal required UIDs
-  char studyUid[100];
-  char seriesUid[100];
-  char instanceUid[100];
-  dcmGenerateUniqueIdentifier(studyUid, SITE_STUDY_UID_ROOT);
-  dcmGenerateUniqueIdentifier(seriesUid, SITE_SERIES_UID_ROOT);
-  dcmGenerateUniqueIdentifier(instanceUid, SITE_INSTANCE_UID_ROOT);
-
-  ASSERT_TRUE(dataset
-                  ->putAndInsertString(DCM_SOPClassUID,
-                                       UID_SecondaryCaptureImageStorage)
-                  .good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_StudyInstanceUID, studyUid).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_SeriesInstanceUID, seriesUid).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_SOPInstanceUID, instanceUid).good());
+  // Populate dataset for an 16-bit signed monochrome image
+  PopulateDatasetWithRequiredAttributes(dataset, rows, cols, 16, 1,
+                                        "MONOCHROME2", 1);
 
   // Pixel data
   ASSERT_TRUE(
@@ -358,37 +362,9 @@ TEST(CodecTest, BasicColorCompressDecompressLossless) {
   DcmFileFormat fileformat;
   DcmDataset *dataset = fileformat.getDataset();
 
-  // Required image attributes
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_Rows, rows).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_Columns, cols).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertUint16(DCM_SamplesPerPixel, samplesPerPixel).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_PhotometricInterpretation, "RGB").good());
+  // Populate dataset for an 8-bit color image
+  PopulateDatasetWithRequiredAttributes(dataset, rows, cols, 8, 3, "RGB", 0);
   ASSERT_TRUE(dataset->putAndInsertUint16(DCM_PlanarConfiguration, 0).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_BitsAllocated, 8).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_BitsStored, 8).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_HighBit, 7).good());
-  ASSERT_TRUE(dataset->putAndInsertUint16(DCM_PixelRepresentation, 0).good());
-
-  // Minimal required UIDs
-  char studyUid[100];
-  char seriesUid[100];
-  char instanceUid[100];
-  dcmGenerateUniqueIdentifier(studyUid, SITE_STUDY_UID_ROOT);
-  dcmGenerateUniqueIdentifier(seriesUid, SITE_SERIES_UID_ROOT);
-  dcmGenerateUniqueIdentifier(instanceUid, SITE_INSTANCE_UID_ROOT);
-
-  ASSERT_TRUE(dataset
-                  ->putAndInsertString(DCM_SOPClassUID,
-                                       UID_SecondaryCaptureImageStorage)
-                  .good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_StudyInstanceUID, studyUid).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_SeriesInstanceUID, seriesUid).good());
-  ASSERT_TRUE(
-      dataset->putAndInsertString(DCM_SOPInstanceUID, instanceUid).good());
 
   // Pixel data
   ASSERT_TRUE(
