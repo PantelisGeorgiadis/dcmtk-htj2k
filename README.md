@@ -18,6 +18,7 @@ DCMTK-HTJ2K provides HTJ2K codec support for [DCMTK](https://github.com/DCMTK/dc
 - **HTJ2K Decoding**: Decompress HTJ2K-encoded DICOM images.
 - **DCMTK Integration**: Seamless integration with DCMTK codec framework.
 - **Configurable Parameters**: Support for codeblock dimensions, progression order, number of decompositions, fragment sizes, and encoding options.
+- **Cross Platform**: Supports Linux, macOS, and Windows builds.
 
 ## Dependencies
 

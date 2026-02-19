@@ -1,5 +1,5 @@
 /*
- * Basic tests for DCMTKHTJ2K library
+ * Basic tests for the DCMTKHTJ2K library
  */
 
 #include <gtest/gtest.h>

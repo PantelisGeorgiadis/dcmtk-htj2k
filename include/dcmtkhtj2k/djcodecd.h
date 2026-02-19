@@ -288,7 +288,7 @@ class DCMTKHTJ2K_EXPORT HtJ2kDecoderBase : public DcmCodec {
    *     this fragment is the start of a new HT-J2K image, i.e. starts with
    *     an SOI marker followed by SOF, COM or APPn.
    */
-  static OFBool isJPEGLSStartOfImage(Uint8 *fragmentData);
+  static OFBool isJ2KStartOfImage(Uint8 *fragmentData);
 
   /** converts an RGB or YBR frame with 8 bits/sample from
    *  color-by-pixel to color-by-plane planar configuration.

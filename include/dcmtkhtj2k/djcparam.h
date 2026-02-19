@@ -63,7 +63,7 @@ class DCMTKHTJ2K_EXPORT HtJ2kCodecParameter : public DcmCodecParameter {
   virtual ~HtJ2kCodecParameter();
 
   /** this methods creates a copy of type DcmCodecParameter *
-   *  it must be overweritten in every subclass.
+   *  it must be overwritten in every subclass.
    *  @return copy of this object
    */
   virtual DcmCodecParameter *clone() const;

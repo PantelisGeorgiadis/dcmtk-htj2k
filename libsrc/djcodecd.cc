@@ -611,7 +611,7 @@ Uint32 HtJ2kDecoderBase::computeNumberOfFragments(Sint32 numberOfFrames,
 
   // So we have a multi-frame image with multiple fragments per frame and the
   // offset table is empty or wrong. Our last chance is to peek into the
-  // HT-J2K bistream and identify the start of the next frame.
+  // HT-J2K bitstream and identify the start of the next frame.
   Uint32 nextItem = startItem;
   Uint8 *fragmentData = NULL;
   while (++nextItem < numItems) {
@@ -621,8 +621,8 @@ Uint32 HtJ2kDecoderBase::computeNumberOfFragments(Sint32 numberOfFrames,
       fragmentData = NULL;
       result = pixItem->getUint8Array(fragmentData);
       if (result.good() && fragmentData && (pixItem->getLength() > 3)) {
-        if (isJPEGLSStartOfImage(fragmentData)) {
-          // found a HT-J2K SOI marker. Assume that this is the start of the
+        if (isJ2KStartOfImage(fragmentData)) {
+          // found a HT-J2K SOC marker. Assume that this is the start of the
           // next frame.
           return (nextItem - startItem);
         }
@@ -636,14 +636,13 @@ Uint32 HtJ2kDecoderBase::computeNumberOfFragments(Sint32 numberOfFrames,
   return 0;
 }
 
-OFBool HtJ2kDecoderBase::isJPEGLSStartOfImage(Uint8 *fragmentData) {
-  // A valid HT-J2K bitstream will always start with an SOI marker FFD8,
-  // followed by either an SOF55 (FFF7), COM (FFFE) or APPn (FFE0-FFEF) marker.
+OFBool HtJ2kDecoderBase::isJ2KStartOfImage(Uint8 *fragmentData) {
+  // A valid JPEG 2000 codestream starts with SOC (FF4F),
+  // followed by SIZ (FF51).
   if ((*fragmentData++) != 0xFF) return OFFalse;
-  if ((*fragmentData++) != 0xD8) return OFFalse;
+  if ((*fragmentData++) != 0x4F) return OFFalse;
   if ((*fragmentData++) != 0xFF) return OFFalse;
-  if ((*fragmentData == 0xF7) || (*fragmentData == 0xFE) ||
-      ((*fragmentData & 0xF0) == 0xE0)) {
+  if (*fragmentData == 0x51) {
     return OFTrue;
   }
   return OFFalse;

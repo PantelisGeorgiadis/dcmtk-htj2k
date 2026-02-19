@@ -3,7 +3,7 @@
 
 #include "dcmtk/config/osconfig.h"
 #include "dcmtk/ofstd/oftypes.h" /* for OFBool */
-#include "djutils.h"            /* for enums */
+#include "djutils.h"             /* for enums */
 
 class HtJ2kCodecParameter;
 class HtJ2kDecoder;

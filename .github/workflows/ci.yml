@@ -15,6 +15,24 @@ env:
   BUILD_TYPE: Release
 
 jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Build on Windows
+        shell: bash
+        run: ./build.sh ${{env.BUILD_TYPE}}
+      - name: Run tests on Windows
+        shell: pwsh
+        run: ./build/tests/${{env.BUILD_TYPE}}/dcmtkhtj2k_tests.exe
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcmtk-htj2k-build-windows
+          path: |
+            build/${{env.BUILD_TYPE}}
+          compression-level: 9
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -43,7 +61,7 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dcmtk-htj2k-build-osx
+          name: dcmtk-htj2k-build-macos
           path: |
             build/${{env.BUILD_TYPE}}
           compression-level: 9

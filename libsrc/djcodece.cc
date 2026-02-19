@@ -342,7 +342,7 @@ OFCondition HtJ2kEncoderBase::updateLossyCompressionRatio(DcmItem *dataset,
   // Compression Ratio
   while (m_vm++ < s_vm) m += "\\";
 
-  m += "ISO_14495_1";
+  m += "ISO_15444_1";
   return dataset->putAndInsertString(DCM_LossyImageCompressionMethod,
                                      m.c_str());
 }
@@ -353,7 +353,7 @@ OFCondition HtJ2kEncoderBase::updateDerivationDescription(
   OFString derivationDescription;
   char buf[64];
 
-  derivationDescription = "near lossless HT-J2K compression, factor ";
+  derivationDescription = "HT-J2K lossy compression, factor ";
   OFStandard::ftoa(buf, sizeof(buf), ratio, OFStandard::ftoa_uppercase, 0, 5);
   derivationDescription += buf;
 
@@ -553,15 +553,15 @@ OFCondition HtJ2kEncoderBase::compressRawFrame(
     ojph::codestream codestream;
     ojph::mem_outfile destinationBuffer;
 
-    auto const colorTransform = samplesPerPixel > 1 ? true : false;
+    bool colorTransform = (samplesPerPixel > 1);
     codestream.set_planar(colorTransform == false);
     codestream.set_tilepart_divisions(true, false);
     codestream.request_tlm_marker(true);
 
-    auto siz = codestream.access_siz();
+    ojph::param_siz siz = codestream.access_siz();
     siz.set_image_extent(ojph::point(width, height));
     siz.set_num_components(samplesPerPixel);
-    for (auto c = 0u; c < samplesPerPixel; c++) {
+    for (Uint16 c = 0; c < samplesPerPixel; c++) {
       siz.set_component(c, ojph::point(1, 1), bitsAllocated,
                         pixelRepresentation == 1 ? true : false);
     }
@@ -569,7 +569,7 @@ OFCondition HtJ2kEncoderBase::compressRawFrame(
     siz.set_tile_size(ojph::size(0, 0));
     siz.set_tile_offset(ojph::point(0, 0));
 
-    auto cod = codestream.access_cod();
+    ojph::param_cod cod = codestream.access_cod();
 
     std::string progressionOrder = "LRCP";
     if (djcp->getUseCustomOptions()) {
@@ -599,7 +599,7 @@ OFCondition HtJ2kEncoderBase::compressRawFrame(
     cod.set_precinct_size(0, nullptr);
     cod.set_reversible(djrp->useLosslessProcess());
 
-    auto numberOfDecompositions = 0u;
+    unsigned int numberOfDecompositions = 0;
     size_t tw = width;
     size_t th = height;
     while (tw > 64 && th > 64) {
@@ -619,29 +619,30 @@ OFCondition HtJ2kEncoderBase::compressRawFrame(
     codestream.write_headers(&destinationBuffer, &com_ex, 0);
 
     ojph::ui32 next_comp;
-    auto const bytesPerPixel = bitsAllocated / 8;
-    auto *cur_line = codestream.exchange(nullptr, next_comp);
-    auto const height = siz.get_image_extent().y - siz.get_image_offset().y;
-    for (auto y = 0u; y < height; y++) {
-      for (auto c = 0u; c < siz.get_num_components(); c++) {
-        auto dp = cur_line->i32;
+    Uint16 const bytesPerPixel = bitsAllocated / 8;
+    ojph::line_buf *cur_line = codestream.exchange(nullptr, next_comp);
+    ojph::ui32 const imageHeight =
+        siz.get_image_extent().y - siz.get_image_offset().y;
+    for (ojph::ui32 y = 0; y < imageHeight; y++) {
+      for (ojph::ui32 c = 0; c < siz.get_num_components(); c++) {
+        ojph::si32 *dp = cur_line->i32;
         if (bitsAllocated <= 8) {
-          auto sp = (Uint8 *)&framePointer[(y * width * bytesPerPixel *
-                                            siz.get_num_components()) +
-                                           c];
-          for (auto x = 0; x < width; x++) {
+          Uint8 *sp = (Uint8 *)&framePointer[(y * width * bytesPerPixel *
+                                              siz.get_num_components()) +
+                                             c];
+          for (Uint16 x = 0; x < width; x++) {
             *dp++ = *sp;
             sp += siz.get_num_components();
           }
         } else {
           if (pixelRepresentation == 1) {
-            auto sp = (Sint16 *)&framePointer[y * width * bytesPerPixel];
-            for (auto x = 0; x < width; x++) {
+            Sint16 *sp = (Sint16 *)&framePointer[y * width * bytesPerPixel];
+            for (Uint16 x = 0; x < width; x++) {
               *dp++ = *sp++;
             }
           } else {
-            auto sp = (Uint16 *)&framePointer[y * width * bytesPerPixel];
-            for (auto x = 0; x < width; x++) {
+            Uint16 *sp = (Uint16 *)&framePointer[y * width * bytesPerPixel];
+            for (Uint16 x = 0; x < width; x++) {
               *dp++ = *sp++;
             }
           }
@@ -657,7 +658,7 @@ OFCondition HtJ2kEncoderBase::compressRawFrame(
         const_cast<Uint8 *>((Uint8 const *)destinationBuffer.get_data());
 
     // Store compressed frame
-    auto compressedLen = (unsigned long)destinationBuffer.tell();
+    unsigned long compressedLen = (unsigned long)destinationBuffer.tell();
     compressedSize = compressedLen;
     result = pixelSequence->storeCompressedFrame(offsetList, compressed_data,
                                                  compressedLen, fragmentSize);
@@ -689,7 +690,7 @@ OFCondition HtJ2kEncoderBase::RenderedEncode(
     result = dataset->findAndGetUint16(DCM_BitsAllocated, bitsAllocated);
   if (result.bad()) return result;
 
-  // The cooked encoder only handles the following photometic interpretations
+  // The cooked encoder only handles the following photometric interpretations
   if (photometricInterpretation != "MONOCHROME1" &&
       photometricInterpretation != "MONOCHROME2" &&
       photometricInterpretation != "RGB" &&
@@ -962,15 +963,15 @@ OFCondition HtJ2kEncoderBase::compressRenderedFrame(
     ojph::codestream codestream;
     ojph::mem_outfile destinationBuffer;
 
-    auto const colorTransform = samplesPerPixel > 1 ? true : false;
+    bool colorTransform = (samplesPerPixel > 1);
     codestream.set_planar(colorTransform == false);
     codestream.set_tilepart_divisions(true, false);
     codestream.request_tlm_marker(true);
 
-    auto siz = codestream.access_siz();
+    ojph::param_siz siz = codestream.access_siz();
     siz.set_image_extent(ojph::point(width, height));
     siz.set_num_components(samplesPerPixel);
-    for (auto c = 0; c < samplesPerPixel; c++) {
+    for (int c = 0; c < samplesPerPixel; c++) {
       siz.set_component(c, ojph::point(1, 1), bitsAllocated,
                         pixelRepresentation == 1 ? true : false);
     }
@@ -978,7 +979,7 @@ OFCondition HtJ2kEncoderBase::compressRenderedFrame(
     siz.set_tile_size(ojph::size(0, 0));
     siz.set_tile_offset(ojph::point(0, 0));
 
-    auto cod = codestream.access_cod();
+    ojph::param_cod cod = codestream.access_cod();
 
     std::string progressionOrder = "LRCP";
     if (djcp->getUseCustomOptions()) {
@@ -1008,7 +1009,7 @@ OFCondition HtJ2kEncoderBase::compressRenderedFrame(
     cod.set_precinct_size(0, nullptr);
     cod.set_reversible(djrp->useLosslessProcess());
 
-    auto numberOfDecompositions = 0u;
+    unsigned int numberOfDecompositions = 0;
     size_t tw = width;
     size_t th = height;
     while (tw > 64 && th > 64) {
@@ -1028,29 +1029,30 @@ OFCondition HtJ2kEncoderBase::compressRenderedFrame(
     codestream.write_headers(&destinationBuffer, &com_ex, 0);
 
     ojph::ui32 next_comp;
-    auto const bytesPerPixel = bitsAllocated / 8;
-    auto *cur_line = codestream.exchange(nullptr, next_comp);
-    auto const height = siz.get_image_extent().y - siz.get_image_offset().y;
-    for (auto y = 0u; y < height; y++) {
-      for (unsigned c = 0; c < siz.get_num_components(); c++) {
-        auto dp = cur_line->i32;
+    int const bytesPerPixel = bitsAllocated / 8;
+    ojph::line_buf *cur_line = codestream.exchange(nullptr, next_comp);
+    ojph::ui32 const imageHeight =
+        siz.get_image_extent().y - siz.get_image_offset().y;
+    for (ojph::ui32 y = 0; y < imageHeight; y++) {
+      for (ojph::ui32 c = 0; c < siz.get_num_components(); c++) {
+        ojph::si32 *dp = cur_line->i32;
         if (bitsAllocated <= 8) {
-          auto sp = (Uint8 *)&buffer[(y * width * bytesPerPixel *
-                                      siz.get_num_components()) +
-                                     c];
-          for (auto x = 0; x < width; x++) {
+          Uint8 *sp = (Uint8 *)&buffer[(y * width * bytesPerPixel *
+                                        siz.get_num_components()) +
+                                       c];
+          for (int x = 0; x < width; x++) {
             *dp++ = *sp;
             sp += siz.get_num_components();
           }
         } else {
           if (pixelRepresentation == 1) {
-            auto sp = (Sint16 *)&buffer[y * width * bytesPerPixel];
-            for (auto x = 0; x < width; x++) {
+            Sint16 *sp = (Sint16 *)&buffer[y * width * bytesPerPixel];
+            for (int x = 0; x < width; x++) {
               *dp++ = *sp++;
             }
           } else {
-            auto sp = (Uint16 *)&buffer[y * width * bytesPerPixel];
-            for (auto x = 0; x < width; x++) {
+            Uint16 *sp = (Uint16 *)&buffer[y * width * bytesPerPixel];
+            for (int x = 0; x < width; x++) {
               *dp++ = *sp++;
             }
           }
@@ -1066,7 +1068,7 @@ OFCondition HtJ2kEncoderBase::compressRenderedFrame(
         const_cast<Uint8 *>((Uint8 const *)destinationBuffer.get_data());
 
     // Store compressed frame
-    auto compressedLen = (unsigned long)destinationBuffer.tell();
+    unsigned long compressedLen = (unsigned long)destinationBuffer.tell();
     compressedSize = compressedLen;
     result = pixelSequence->storeCompressedFrame(offsetList, compressed_data,
                                                  compressedLen, fragmentSize);
