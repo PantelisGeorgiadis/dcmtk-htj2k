@@ -101,7 +101,7 @@ OFCondition HtJ2kDecoderBase::decode(
 
   // we only support up to 16 bits per sample
   if ((imageBitsStored < 1) || (imageBitsStored > 16))
-    return EC_J2KUnsupportedBitDepth;
+    return EC_HTJ2KUnsupportedBitDepth;
 
   // determine the number of bytes per sample (bits allocated) for the
   // de-compressed object.
@@ -169,7 +169,7 @@ OFCondition HtJ2kDecoderBase::decode(
     // changes if we're on the main level of the dataset,
     // which should always identify itself as dataset, not as item.
     if ((dataset->ident() == EVR_dataset) &&
-        (djcp->getUIDCreation() == EJ2KUC_always)) {
+        (djcp->getUIDCreation() == EHTJ2KUC_always)) {
       // create new SOP instance UID
       result = DcmCodec::newInstance((DcmItem *)dataset, NULL, NULL, NULL);
     }
@@ -227,7 +227,7 @@ OFCondition HtJ2kDecoderBase::decodeFrame(
 
   // we only support up to 16 bits per sample
   if ((imageBitsStored < 1) || (imageBitsStored > 16))
-    return EC_J2KUnsupportedBitDepth;
+    return EC_HTJ2KUnsupportedBitDepth;
 
   // determine the number of bytes per sample (bits allocated) for the
   // de-compressed object.
@@ -305,7 +305,8 @@ OFCondition HtJ2kDecoderBase::decodeFrame(
   // frame
   fragmentsForThisFrame = computeNumberOfFragments(
       imageFrames, frameNo, currentItem, ignoreOffsetTable, fromPixSeq);
-  if (fragmentsForThisFrame == 0) result = EC_J2KCannotComputeNumberOfFragments;
+  if (fragmentsForThisFrame == 0)
+    result = EC_HTJ2KCannotComputeNumberOfFragments;
 
   // determine planar configuration for uncompressed data
   OFString imageSopClass;
@@ -318,7 +319,7 @@ OFCondition HtJ2kDecoderBase::decodeFrame(
 
   if (imageSamplesPerPixel > 1) {
     switch (cp->getPlanarConfiguration()) {
-      case EJ2KPC_restore:
+      case EHTJ2KPC_restore:
         // get planar configuration from dataset
         imagePlanarConfiguration = 2;  // invalid value
         dataset->findAndGetUint16(DCM_PlanarConfiguration,
@@ -328,14 +329,14 @@ OFCondition HtJ2kDecoderBase::decodeFrame(
           imagePlanarConfiguration = determinePlanarConfiguration(
               imageSopClass, imagePhotometricInterpretation);
         break;
-      case EJ2KPC_auto:
+      case EHTJ2KPC_auto:
         imagePlanarConfiguration = determinePlanarConfiguration(
             imageSopClass, imagePhotometricInterpretation);
         break;
-      case EJ2KPC_colorByPixel:
+      case EHTJ2KPC_colorByPixel:
         imagePlanarConfiguration = 0;
         break;
-      case EJ2KPC_colorByPlane:
+      case EHTJ2KPC_colorByPlane:
         imagePlanarConfiguration = 1;
         break;
     }
@@ -393,11 +394,11 @@ OFCondition HtJ2kDecoderBase::decodeFrame(
       int height = siz.get_recon_height(0);
 
       if (width != imageColumns)
-        result = EC_J2KImageDataMismatch;
+        result = EC_HTJ2KImageDataMismatch;
       else if (height != imageRows)
-        result = EC_J2KImageDataMismatch;
+        result = EC_HTJ2KImageDataMismatch;
       else if (num_comps != imageSamplesPerPixel)
-        result = EC_J2KImageDataMismatch;
+        result = EC_HTJ2KImageDataMismatch;
 
       if (result.good()) {
         codestream.create();

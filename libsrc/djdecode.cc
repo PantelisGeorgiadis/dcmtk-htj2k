@@ -11,7 +11,7 @@ HtJ2kCodecParameter *HtJ2kDecoderRegistration::cp_ = NULL;
 HtJ2kDecoder *HtJ2kDecoderRegistration::decoder_ = NULL;
 
 void HtJ2kDecoderRegistration::registerCodecs(
-    J2K_UIDCreation uidcreation, J2K_PlanarConfiguration planarconfig,
+    HTJ2K_UIDCreation uidcreation, HTJ2K_PlanarConfiguration planarconfig,
     OFBool ignoreOffsetTable) {
   if (!registered_) {
     cp_ = new HtJ2kCodecParameter(uidcreation, planarconfig, ignoreOffsetTable);

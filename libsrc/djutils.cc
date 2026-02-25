@@ -10,38 +10,38 @@ OFLogger DCM_ht2kLogger = OFLog::getLogger("DCMTKHTJ2K");
   makeOFConditionConst(EC_##name, OFM_dcmjp2k, number, OF_error, description)
 
 MAKE_DCMTKHTJ2K_ERROR(
-    1, J2KUncompressedBufferTooSmall,
+    1, HTJ2KUncompressedBufferTooSmall,
     "Uncompressed pixel data too short for uncompressed image");
-MAKE_DCMTKHTJ2K_ERROR(2, J2KCompressedBufferTooSmall,
+MAKE_DCMTKHTJ2K_ERROR(2, HTJ2KCompressedBufferTooSmall,
                       "Allocated too small buffer for compressed image data");
-MAKE_DCMTKHTJ2K_ERROR(3, J2KCodecUnsupportedImageType,
+MAKE_DCMTKHTJ2K_ERROR(3, HTJ2KCodecUnsupportedImageType,
                       "Codec does not support this HT-J2K image");
-MAKE_DCMTKHTJ2K_ERROR(4, J2KCodecInvalidParameters,
+MAKE_DCMTKHTJ2K_ERROR(4, HTJ2KCodecInvalidParameters,
                       "Codec received invalid compression parameters");
-MAKE_DCMTKHTJ2K_ERROR(5, J2KCodecUnsupportedValue,
+MAKE_DCMTKHTJ2K_ERROR(5, HTJ2KCodecUnsupportedValue,
                       "Codec received unsupported compression parameters");
-MAKE_DCMTKHTJ2K_ERROR(6, J2KInvalidCompressedData,
+MAKE_DCMTKHTJ2K_ERROR(6, HTJ2KInvalidCompressedData,
                       "Invalid compressed image data");
-MAKE_DCMTKHTJ2K_ERROR(7, J2KUnsupportedBitDepthForTransform,
+MAKE_DCMTKHTJ2K_ERROR(7, HTJ2KUnsupportedBitDepthForTransform,
                       "Codec does not support the image's color transformation "
                       "with this bit depth");
 MAKE_DCMTKHTJ2K_ERROR(
-    8, J2KUnsupportedColorTransform,
+    8, HTJ2KUnsupportedColorTransform,
     "Codec does not support the image's color transformation");
-MAKE_DCMTKHTJ2K_ERROR(9, J2KUnsupportedBitDepth,
+MAKE_DCMTKHTJ2K_ERROR(9, HTJ2KUnsupportedBitDepth,
                       "Unsupported bit depth in HT-J2K transfer syntax");
-MAKE_DCMTKHTJ2K_ERROR(10, J2KCannotComputeNumberOfFragments,
+MAKE_DCMTKHTJ2K_ERROR(10, HTJ2KCannotComputeNumberOfFragments,
                       "Cannot compute number of fragments for HT-J2K frame");
 MAKE_DCMTKHTJ2K_ERROR(
-    11, J2KImageDataMismatch,
+    11, HTJ2KImageDataMismatch,
     "Image data mismatch between DICOM header and HT-J2K bitstream");
-MAKE_DCMTKHTJ2K_ERROR(12, J2KUnsupportedPhotometricInterpretation,
+MAKE_DCMTKHTJ2K_ERROR(12, HTJ2KUnsupportedPhotometricInterpretation,
                       "Unsupported photometric interpretation for "
                       "near-lossless HT-J2K compression");
 MAKE_DCMTKHTJ2K_ERROR(
-    13, J2KUnsupportedPixelRepresentation,
+    13, HTJ2KUnsupportedPixelRepresentation,
     "Unsupported pixel representation for near-lossless HT-J2K compression");
-MAKE_DCMTKHTJ2K_ERROR(14, J2KUnsupportedImageType,
+MAKE_DCMTKHTJ2K_ERROR(14, HTJ2KUnsupportedImageType,
                       "Unsupported type of image for HT-J2K compression");
-MAKE_DCMTKHTJ2K_ERROR(15, J2KTooMuchCompressedData,
+MAKE_DCMTKHTJ2K_ERROR(15, HTJ2KTooMuchCompressedData,
                       "Too much compressed data, trailing data after image");

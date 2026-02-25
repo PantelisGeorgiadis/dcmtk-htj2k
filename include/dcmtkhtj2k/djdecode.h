@@ -24,8 +24,8 @@ class DCMTKHTJ2K_EXPORT HtJ2kDecoderRegistration {
    * table when decompressing multiframe images
    */
   static void registerCodecs(
-      J2K_UIDCreation uidcreation = EJ2KUC_default,
-      J2K_PlanarConfiguration planarconfig = EJ2KPC_restore,
+      HTJ2K_UIDCreation uidcreation = EHTJ2KUC_default,
+      HTJ2K_PlanarConfiguration planarconfig = EHTJ2KPC_restore,
       OFBool ignoreOffsetTable = OFFalse);
 
   /** deregisters decoders.

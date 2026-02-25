@@ -6,10 +6,10 @@
 HtJ2kCodecParameter::HtJ2kCodecParameter(
     OFBool jp2k_optionsEnabled, Uint16 jp2k_decompositions,
     Uint16 jp2k_cblkwidth, Uint16 jp2k_cblkheight,
-    J2K_ProgressionOrder jp2k_progressionOrder, OFBool preferCookedEncoding,
-    Uint32 fragmentSize, OFBool createOffsetTable, J2K_UIDCreation uidCreation,
-    OFBool convertToSC, J2K_PlanarConfiguration planarConfiguration,
-    OFBool ignoreOffsetTble)
+    HTJ2K_ProgressionOrder jp2k_progressionOrder, OFBool preferCookedEncoding,
+    Uint32 fragmentSize, OFBool createOffsetTable,
+    HTJ2K_UIDCreation uidCreation, OFBool convertToSC,
+    HTJ2K_PlanarConfiguration planarConfiguration, OFBool ignoreOffsetTble)
     : DcmCodecParameter(),
       jp2k_optionsEnabled_(jp2k_optionsEnabled),
       jp2k_decompositions_(jp2k_decompositions),
@@ -25,8 +25,8 @@ HtJ2kCodecParameter::HtJ2kCodecParameter(
       ignoreOffsetTable_(ignoreOffsetTble) {}
 
 HtJ2kCodecParameter::HtJ2kCodecParameter(
-    J2K_UIDCreation uidCreation, J2K_PlanarConfiguration planarConfiguration,
-    OFBool ignoreOffsetTble)
+    HTJ2K_UIDCreation uidCreation,
+    HTJ2K_PlanarConfiguration planarConfiguration, OFBool ignoreOffsetTble)
     : DcmCodecParameter(),
       jp2k_optionsEnabled_(OFFalse),
       jp2k_cblkwidth_(0),

@@ -15,15 +15,15 @@ HtJ2kLossyEncoder *HtJ2kEncoderRegistration::lossyencoder_ = NULL;
 void HtJ2kEncoderRegistration::registerCodecs(
     OFBool jp2k_optionsEnabled, Uint16 jp2k_decompositions,
     Uint16 jp2k_cblkwidth, Uint16 jp2k_cblkheight,
-    J2K_ProgressionOrder jp2k_progressionOrder, OFBool preferCookedEncoding,
-    Uint32 fragmentSize, OFBool createOffsetTable, J2K_UIDCreation uidCreation,
-    OFBool convertToSC) {
+    HTJ2K_ProgressionOrder jp2k_progressionOrder, OFBool preferCookedEncoding,
+    Uint32 fragmentSize, OFBool createOffsetTable,
+    HTJ2K_UIDCreation uidCreation, OFBool convertToSC) {
   if (!registered_) {
     cp_ = new HtJ2kCodecParameter(jp2k_optionsEnabled, jp2k_decompositions,
                                   jp2k_cblkwidth, jp2k_cblkheight,
                                   jp2k_progressionOrder, preferCookedEncoding,
                                   fragmentSize, createOffsetTable, uidCreation,
-                                  convertToSC, EJ2KPC_restore, OFFalse);
+                                  convertToSC, EHTJ2KPC_restore, OFFalse);
 
     if (cp_) {
       losslessencoder_ = new Ht2kLosslessEncoder();

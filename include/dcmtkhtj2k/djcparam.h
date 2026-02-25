@@ -34,12 +34,12 @@ class DCMTKHTJ2K_EXPORT HtJ2kCodecParameter : public DcmCodecParameter {
   HtJ2kCodecParameter(
       OFBool jp2k_optionsEnabled, Uint16 jp2k_decompositions = 5,
       Uint16 jp2k_cblkwidth = 64, Uint16 jp2k_cblkheight = 64,
-      J2K_ProgressionOrder jp2k_progressionOrder = EJ2KPO_default,
+      HTJ2K_ProgressionOrder jp2k_progressionOrder = EHTJ2KPO_default,
       OFBool preferCookedEncoding = OFTrue, Uint32 fragmentSize = 0,
       OFBool createOffsetTable = OFTrue,
-      J2K_UIDCreation uidCreation = EJ2KUC_default,
+      HTJ2K_UIDCreation uidCreation = EHTJ2KUC_default,
       OFBool convertToSC = OFFalse,
-      J2K_PlanarConfiguration planarConfiguration = EJ2KPC_restore,
+      HTJ2K_PlanarConfiguration planarConfiguration = EHTJ2KPC_restore,
       OFBool ignoreOffsetTable = OFFalse);
 
   /** constructor, for use with decoders. Initializes all encoder options to
@@ -52,8 +52,8 @@ class DCMTKHTJ2K_EXPORT HtJ2kCodecParameter : public DcmCodecParameter {
    * offset table when decompressing multiframe images
    */
   HtJ2kCodecParameter(
-      J2K_UIDCreation uidCreation = EJ2KUC_default,
-      J2K_PlanarConfiguration planarConfiguration = EJ2KPC_restore,
+      HTJ2K_UIDCreation uidCreation = EHTJ2KUC_default,
+      HTJ2K_PlanarConfiguration planarConfiguration = EHTJ2KPC_restore,
       OFBool ignoreOffsetTable = OFFalse);
 
   /// copy constructor
@@ -86,12 +86,12 @@ class DCMTKHTJ2K_EXPORT HtJ2kCodecParameter : public DcmCodecParameter {
   /** returns mode for SOP Instance UID creation
    *  @return mode for SOP Instance UID creation
    */
-  J2K_UIDCreation getUIDCreation() const { return uidCreation_; }
+  HTJ2K_UIDCreation getUIDCreation() const { return uidCreation_; }
 
   /** returns mode for handling planar configuration
    *  @return mode for handling planar configuration
    */
-  J2K_PlanarConfiguration getPlanarConfiguration() const {
+  HTJ2K_PlanarConfiguration getPlanarConfiguration() const {
     return planarConfiguration_;
   }
 
@@ -125,7 +125,7 @@ class DCMTKHTJ2K_EXPORT HtJ2kCodecParameter : public DcmCodecParameter {
   /** returns HT-J2K parameter progression order
    *  @return HT-J2K parameter progression order
    */
-  J2K_ProgressionOrder get_progressionOrder() const {
+  HTJ2K_ProgressionOrder get_progressionOrder() const {
     return jp2k_progressionOrder_;
   }
 
@@ -161,7 +161,7 @@ class DCMTKHTJ2K_EXPORT HtJ2kCodecParameter : public DcmCodecParameter {
   Uint16 jp2k_cblkheight_;
 
   /// HT-J2K progression order parameter
-  J2K_ProgressionOrder jp2k_progressionOrder_;
+  HTJ2K_ProgressionOrder jp2k_progressionOrder_;
 
   /// maximum fragment size (in kbytes) for compression, 0 for unlimited.
   Uint32 fragmentSize_;
@@ -174,7 +174,7 @@ class DCMTKHTJ2K_EXPORT HtJ2kCodecParameter : public DcmCodecParameter {
   OFBool preferCookedEncoding_;
 
   /// mode for SOP Instance UID creation (used both for encoding and decoding)
-  J2K_UIDCreation uidCreation_;
+  HTJ2K_UIDCreation uidCreation_;
 
   /// flag indicating whether image should be converted to Secondary Capture
   /// upon compression
@@ -185,7 +185,7 @@ class DCMTKHTJ2K_EXPORT HtJ2kCodecParameter : public DcmCodecParameter {
 
   /// flag describing how planar configuration of decompressed color images
   /// should be handled
-  J2K_PlanarConfiguration planarConfiguration_;
+  HTJ2K_PlanarConfiguration planarConfiguration_;
 
   /// flag indicating if temporary files should be kept, false if they should be
   /// deleted after use

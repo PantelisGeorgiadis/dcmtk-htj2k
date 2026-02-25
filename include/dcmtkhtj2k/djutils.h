@@ -6,7 +6,7 @@
 #include "dcmtk/ofstd/ofcond.h" /* for class OFCondition */
 #include "dldefine.h"
 
-#define DCMTKHTJ2K_VERSION_STRING "DCMTK HTJ2K"
+#define DCMTKHTJ2K_VERSION_STRING "DCMTK-HTJ2K 1.0.2"
 
 // global definitions for logging mechanism provided by the oflog module
 
@@ -21,7 +21,7 @@ extern DCMTKHTJ2K_EXPORT OFLogger DCM_ht2kLogger;
 
 // include this file in doxygen documentation
 
-/** @file djlsutil.h
+/** @file djutils.h
  *  @brief enumerations, error constants and helper functions for the dcmhtj2k
  * module
  */
@@ -29,77 +29,77 @@ extern DCMTKHTJ2K_EXPORT OFLogger DCM_ht2kLogger;
 /** describes the condition under which a compressed or decompressed image
  *  receives a new SOP instance UID.
  */
-enum J2K_UIDCreation {
+enum HTJ2K_UIDCreation {
   /** Upon compression, assign new SOP instance UID if compression is lossy.
    *  Upon decompression never assign new SOP instance UID.
    */
-  EJ2KUC_default,
+  EHTJ2KUC_default,
 
   /// always assign new SOP instance UID on compression and decompression
-  EJ2KUC_always,
+  EHTJ2KUC_always,
 
   /// never assign new SOP instance UID
-  EJ2KUC_never
+  EHTJ2KUC_never
 };
 
 /** describes how the decoder should handle planar configuration of
  *  decompressed color images.
  */
-enum J2K_PlanarConfiguration {
+enum HTJ2K_PlanarConfiguration {
   /// restore planar configuration as indicated in data set
-  EJ2KPC_restore,
+  EHTJ2KPC_restore,
 
   /** automatically determine whether color-by-plane is required from
    *  the SOP Class UID and decompressed photometric interpretation
    */
-  EJ2KPC_auto,
+  EHTJ2KPC_auto,
 
   /// always create color-by-pixel planar configuration
-  EJ2KPC_colorByPixel,
+  EHTJ2KPC_colorByPixel,
 
   /// always create color-by-plane planar configuration
-  EJ2KPC_colorByPlane
+  EHTJ2KPC_colorByPlane
 };
 
 /** describes how the encoder handles the image bit depth
  *  upon lossy compression.
  */
-enum J2K_CompressionBitDepth {
+enum HTJ2K_CompressionBitDepth {
   /// keep original bit depth
-  EJ2KBD_original,
+  EHTJ2KBD_original,
 
   /** limit bit depth to a certain value, i.e. scale down
    *  if the original image bit depth is larger
    */
-  EJ2KBD_limit,
+  EHTJ2KBD_limit,
 
   /** force bit depth to a certain value, i.e. scale up
    *  or scale down the original image to match the given
    *  bit depth.
    */
-  EJ2KBD_force
+  EHTJ2KBD_force
 };
 
 /** describes the progression order used in the codestream
  */
-enum J2K_ProgressionOrder {
+enum HTJ2K_ProgressionOrder {
   /// use default progression order as defined in HT-J2K standard
-  EJ2KPO_default,
+  EHTJ2KPO_default,
 
   /// layer-resolution-component-position progression order
-  EJ2KPO_LRCP,
+  EHTJ2KPO_LRCP,
 
   /// resolution-layer-component-position progression order
-  EJ2KPO_RLCP,
+  EHTJ2KPO_RLCP,
 
   /// resolution-position-component-layer progression order
-  EJ2KPO_RPCL,
+  EHTJ2KPO_RPCL,
 
   /// position-component-resolution-layer progression order
-  EJ2KPO_PCRL,
+  EHTJ2KPO_PCRL,
 
   /// component-position-resolution-layer progression order
-  EJ2KPO_CPRL
+  EHTJ2KPO_CPRL
 };
 
 // CONDITION CONSTANTS
@@ -107,61 +107,64 @@ enum J2K_ProgressionOrder {
 /// error condition constant: Too small buffer used for image data (internal
 /// error)
 extern DCMTKHTJ2K_EXPORT const OFConditionConst
-    EC_J2KUncompressedBufferTooSmall;
+    EC_HTJ2KUncompressedBufferTooSmall;
 
 /// error condition constant: Too small buffer used for compressed image data
 /// (internal error)
-extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_J2KCompressedBufferTooSmall;
+extern DCMTKHTJ2K_EXPORT const OFConditionConst
+    EC_HTJ2KCompressedBufferTooSmall;
 
 /// error condition constant: The image uses some features which the codec does
 /// not support
-extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_J2KCodecUnsupportedImageType;
+extern DCMTKHTJ2K_EXPORT const OFConditionConst
+    EC_HTJ2KCodecUnsupportedImageType;
 
 /// error condition constant: The codec was fed with invalid parameters (e.g.
 /// height = -1)
-extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_J2KCodecInvalidParameters;
+extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_HTJ2KCodecInvalidParameters;
 
 /// error condition constant: The codec was fed with unsupported parameters
 /// (e.g. 32 bit per sample)
-extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_J2KCodecUnsupportedValue;
+extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_HTJ2KCodecUnsupportedValue;
 
 /// error condition constant: The compressed image is invalid
-extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_J2KInvalidCompressedData;
+extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_HTJ2KInvalidCompressedData;
 
 /// error condition constant: The images' color transformation is not supported
 /// in this bit depth
 extern DCMTKHTJ2K_EXPORT const OFConditionConst
-    EC_J2KUnsupportedBitDepthForTransform;
+    EC_HTJ2KUnsupportedBitDepthForTransform;
 
 /// error condition constant: The images' color transformation is not supported
-extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_J2KUnsupportedColorTransform;
+extern DCMTKHTJ2K_EXPORT const OFConditionConst
+    EC_HTJ2KUnsupportedColorTransform;
 
 /// error condition constant: Unsupported bit depth in HT-J2K transfer syntax
-extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_J2KUnsupportedBitDepth;
+extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_HTJ2KUnsupportedBitDepth;
 
 /// error condition constant: Cannot compute number of fragments for HT-J2K
 /// frame
 extern DCMTKHTJ2K_EXPORT const OFConditionConst
-    EC_J2KCannotComputeNumberOfFragments;
+    EC_HTJ2KCannotComputeNumberOfFragments;
 
 /// error condition constant: Image data mismatch between DICOM header and
 /// HT-J2K bitstream
-extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_J2KImageDataMismatch;
+extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_HTJ2KImageDataMismatch;
 
 /// error condition constant: Unsupported photometric interpretation for
 /// near-lossless HT-J2K compression
 extern DCMTKHTJ2K_EXPORT const OFConditionConst
-    EC_J2KUnsupportedPhotometricInterpretation;
+    EC_HTJ2KUnsupportedPhotometricInterpretation;
 
 /// error condition constant: Unsupported pixel representation for near-lossless
 /// HT-J2K compression
 extern DCMTKHTJ2K_EXPORT const OFConditionConst
-    EC_J2KUnsupportedPixelRepresentation;
+    EC_HTJ2KUnsupportedPixelRepresentation;
 
 /// error condition constant: Unsupported type of image for HT-J2K compression
-extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_J2KUnsupportedImageType;
+extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_HTJ2KUnsupportedImageType;
 
 /// error condition constant: Trailing data after image
-extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_J2KTooMuchCompressedData;
+extern DCMTKHTJ2K_EXPORT const OFConditionConst EC_HTJ2KTooMuchCompressedData;
 
 #endif

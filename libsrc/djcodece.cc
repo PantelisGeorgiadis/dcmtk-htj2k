@@ -180,13 +180,15 @@ OFCondition HtJ2kEncoderBase::encode(
           djrp->useLosslessProcess()) {
         // lossless process - create new UID if mode is EUC_always or if we're
         // converting to Secondary Capture
-        if (djcp->getConvertToSC() || (djcp->getUIDCreation() == EJ2KUC_always))
+        if (djcp->getConvertToSC() ||
+            (djcp->getUIDCreation() == EHTJ2KUC_always))
           result = DcmCodec::newInstance(dataset, "DCM", "121320",
                                          "Uncompressed predecessor");
       } else {
         // lossy process - create new UID unless mode is EUC_never and we're not
         // converting to Secondary Capture
-        if (djcp->getConvertToSC() || (djcp->getUIDCreation() != EJ2KUC_never))
+        if (djcp->getConvertToSC() ||
+            (djcp->getUIDCreation() != EHTJ2KUC_never))
           result = DcmCodec::newInstance(dataset, "DCM", "121320",
                                          "Uncompressed predecessor");
 
@@ -443,18 +445,18 @@ OFCondition HtJ2kEncoderBase::losslessRawEncode(
       }
 
       // an image that is not supported by either the raw or the cooked encoder.
-      result = EC_J2KUnsupportedImageType;
+      result = EC_HTJ2KUnsupportedImageType;
     }
 
     // make sure that all the descriptive attributes have sensible values
     if ((columns < 1) || (rows < 1) || (samplesPerPixel < 1))
-      result = EC_J2KUnsupportedImageType;
+      result = EC_HTJ2KUnsupportedImageType;
 
     // make sure that we have at least as many bytes of pixel data as we expect
     if (bytesAllocated * samplesPerPixel * columns * rows *
             OFstatic_cast(unsigned long, numberOfFrames) >
         length)
-      result = EC_J2KUncompressedBufferTooSmall;
+      result = EC_HTJ2KUncompressedBufferTooSmall;
   }
 
   DcmPixelSequence *pixelSequence = NULL;
@@ -573,16 +575,16 @@ OFCondition HtJ2kEncoderBase::compressRawFrame(
 
     std::string progressionOrder = "LRCP";
     if (djcp->getUseCustomOptions()) {
-      J2K_ProgressionOrder po = djcp->get_progressionOrder();
-      if (po == J2K_ProgressionOrder::EJ2KPO_LRCP) {
+      HTJ2K_ProgressionOrder po = djcp->get_progressionOrder();
+      if (po == HTJ2K_ProgressionOrder::EHTJ2KPO_LRCP) {
         progressionOrder = "LRCP";
-      } else if (po == J2K_ProgressionOrder::EJ2KPO_RLCP) {
+      } else if (po == HTJ2K_ProgressionOrder::EHTJ2KPO_RLCP) {
         progressionOrder = "RLCP";
-      } else if (po == J2K_ProgressionOrder::EJ2KPO_RPCL) {
+      } else if (po == HTJ2K_ProgressionOrder::EHTJ2KPO_RPCL) {
         progressionOrder = "RPCL";
-      } else if (po == J2K_ProgressionOrder::EJ2KPO_PCRL) {
+      } else if (po == HTJ2K_ProgressionOrder::EHTJ2KPO_PCRL) {
         progressionOrder = "PCRL";
-      } else if (po == J2K_ProgressionOrder::EJ2KPO_CPRL) {
+      } else if (po == HTJ2K_ProgressionOrder::EHTJ2KPO_CPRL) {
         progressionOrder = "CPRL";
       }
     }
@@ -732,7 +734,8 @@ OFCondition HtJ2kEncoderBase::RenderedEncode(
 
   // determine number of bits per sample
   int bitsPerSample = dimage->getDepth();
-  if (result.good() && (bitsPerSample > 16)) result = EC_J2KUnsupportedBitDepth;
+  if (result.good() && (bitsPerSample > 16))
+    result = EC_HTJ2KUnsupportedBitDepth;
 
   // create initial pixel sequence
   if (result.good()) {
@@ -819,7 +822,7 @@ OFCondition HtJ2kEncoderBase::compressRenderedFrame(
   int width = dimage->getWidth();
   int height = dimage->getHeight();
   int depth = dimage->getDepth();
-  if ((depth < 1) || (depth > 16)) return EC_J2KUnsupportedBitDepth;
+  if ((depth < 1) || (depth > 16)) return EC_HTJ2KUnsupportedBitDepth;
 
   Uint32 fragmentSize = djcp->getFragmentSize();
 
@@ -930,7 +933,7 @@ OFCondition HtJ2kEncoderBase::compressRenderedFrame(
     } break;
     default:
       // we don't support images with > 16 bits/sample
-      return EC_J2KUnsupportedBitDepth;
+      return EC_HTJ2KUnsupportedBitDepth;
       break;
   }
 
@@ -983,16 +986,16 @@ OFCondition HtJ2kEncoderBase::compressRenderedFrame(
 
     std::string progressionOrder = "LRCP";
     if (djcp->getUseCustomOptions()) {
-      J2K_ProgressionOrder po = djcp->get_progressionOrder();
-      if (po == J2K_ProgressionOrder::EJ2KPO_LRCP) {
+      HTJ2K_ProgressionOrder po = djcp->get_progressionOrder();
+      if (po == HTJ2K_ProgressionOrder::EHTJ2KPO_LRCP) {
         progressionOrder = "LRCP";
-      } else if (po == J2K_ProgressionOrder::EJ2KPO_RLCP) {
+      } else if (po == HTJ2K_ProgressionOrder::EHTJ2KPO_RLCP) {
         progressionOrder = "RLCP";
-      } else if (po == J2K_ProgressionOrder::EJ2KPO_RPCL) {
+      } else if (po == HTJ2K_ProgressionOrder::EHTJ2KPO_RPCL) {
         progressionOrder = "RPCL";
-      } else if (po == J2K_ProgressionOrder::EJ2KPO_PCRL) {
+      } else if (po == HTJ2K_ProgressionOrder::EHTJ2KPO_PCRL) {
         progressionOrder = "PCRL";
-      } else if (po == J2K_ProgressionOrder::EJ2KPO_CPRL) {
+      } else if (po == HTJ2K_ProgressionOrder::EHTJ2KPO_CPRL) {
         progressionOrder = "CPRL";
       }
     }

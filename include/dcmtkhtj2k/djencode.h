@@ -43,10 +43,10 @@ class DCMTKHTJ2K_EXPORT HtJ2kEncoderRegistration {
   static void registerCodecs(
       OFBool jp2k_optionsEnabled = OFFalse, Uint16 jp2k_decompositions = 5,
       Uint16 jp2k_cblkwidth = 64, Uint16 jp2k_cblkheight = 64,
-      J2K_ProgressionOrder jp2k_progressionOrder = EJ2KPO_default,
+      HTJ2K_ProgressionOrder jp2k_progressionOrder = EHTJ2KPO_default,
       OFBool preferCookedEncoding = OFTrue, Uint32 fragmentSize = 0,
       OFBool createOffsetTable = OFTrue,
-      J2K_UIDCreation uidCreation = EJ2KUC_default,
+      HTJ2K_UIDCreation uidCreation = EHTJ2KUC_default,
       OFBool convertToSC = OFFalse);
 
   /** deregisters encoders.
