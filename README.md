@@ -19,6 +19,7 @@ DCMTK-HTJ2K provides HTJ2K codec support for [DCMTK](https://github.com/DCMTK/dc
 - **DCMTK Integration**: Seamless integration with DCMTK codec framework.
 - **Configurable Parameters**: Support for codeblock dimensions, progression order, number of decompositions, fragment sizes, and encoding options.
 - **Cross Platform**: Supports Linux, macOS, and Windows builds.
+- **WebAssembly**: Optional Emscripten build producing a C++ static library that you can link into other WebAssembly projects to build wasm for browser or Node.js (see [Building for WebAssembly](#building-for-webassembly-wasm)).
 
 ## Dependencies
 
@@ -40,6 +41,50 @@ The provided build script automatically downloads, builds, and installs dependen
 - Library files to `build/ReleaseOrDebug/lib/`.
 - Header files to `build/ReleaseOrDebug/include/DCMTKHTJ2K/`.
 - CMake configuration files to `build/ReleaseOrDebug/lib/cmake/DCMTKHTJ2K/`.
+
+### Windows (MSVC)
+
+From **x64 Native Tools Command Prompt for VS 2022** (or with MSVC and CMake on PATH):
+
+```batch
+build.bat [Release|Debug]
+```
+
+Defaults to `Release` if omitted. Output is under `build\Release` or `build\Debug`.
+
+### Building for WebAssembly (WASM)
+
+The project can be built for WebAssembly using Emscripten. The result is a C++ static library, not a standalone wasm binary. You link this library into your own Emscripten project to produce the final wasm file for browser or Node.js.
+
+**Prerequisites**
+
+- [Emscripten SDK (emsdk)](https://emscripten.org/docs/getting_started/downloads.html) — installed and on PATH (`emsdk.bat` available)
+- [CMake](https://cmake.org/) (3.12+)
+- [MinGW](https://www.mingw-w64.org/) with `mingw32-make` on PATH
+
+**Build**
+
+From the project root (e.g. in a normal Command Prompt or PowerShell where emsdk and MinGW are on PATH):
+
+```batch
+build_wasm.bat
+```
+
+This script will:
+
+1. Clone (if needed) **DCMTK** and **OpenJPH** into `ots_wasm/`
+2. Check out DCMTK 3.6.9 and OpenJPH 0.26.0
+3. Apply the Emscripten compatibility patch to DCMTK (see `patches/`)
+4. Build DCMTK and OpenJPH with Emscripten, then build DCMTK-HTJ2K
+
+**Output**
+
+- Libraries and headers: `build_wasm\Release\` (lib, include, CMake config)
+- Static library: `build_wasm\Release\lib\libDCMTKHTJ2K.a` — Emscripten-built archive; link this into your application’s Emscripten build to produce the final wasm file.
+
+**Patches**
+
+- `patches/dcmtk-ofwhere-emscripten.patch` — adds an Emscripten implementation of `OFgetExecutablePath` in DCMTK’s `ofwhere.c` (no real executable path in WASM). See `patches/README.md` for details.
 
 ## Usage
 
