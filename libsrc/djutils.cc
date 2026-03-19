@@ -4,7 +4,7 @@
 #include "dcmtk/config/osconfig.h"
 #include "dcmtk/dcmdata/dcerror.h"
 
-OFLogger DCM_ht2kLogger = OFLog::getLogger("DCMTKHTJ2K");
+OFLogger DCM_htJ2kLogger = OFLog::getLogger("DCMTKHTJ2K");
 
 #define MAKE_DCMTKHTJ2K_ERROR(number, name, description) \
   makeOFConditionConst(EC_##name, OFM_dcmjp2k, number, OF_error, description)

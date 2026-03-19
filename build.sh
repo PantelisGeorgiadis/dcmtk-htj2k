@@ -44,7 +44,7 @@ cd $OTS_DEV_SPACE
 [[ -d openjph ]] || git clone https://github.com/aous72/openjph.git
 cd openjph
 git fetch
-git checkout -f 0.26.0
+git checkout -f 0.26.3
 mkdir -p $BUILD_TYPE
 cd $BUILD_TYPE
 cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE \

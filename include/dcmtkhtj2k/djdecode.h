@@ -35,9 +35,9 @@ class DCMTKHTJ2K_EXPORT HtJ2kDecoderRegistration {
    */
   static void cleanup();
 
-  /** get version information of the CharLS library.
-   *  Typical output format: "CharLS, Revision 55020 (modified)"
-   *  @return name and version number of the CharLS library
+  /** get version information of the OpenJPH library.
+   *  Typical output format: "OpenJPH, Revision 55020 (modified)"
+   *  @return name and version number of the OpenJPH library
    */
   static OFString getLibraryVersionString();
 

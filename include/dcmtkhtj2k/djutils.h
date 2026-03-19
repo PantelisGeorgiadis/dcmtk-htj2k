@@ -6,18 +6,18 @@
 #include "dcmtk/ofstd/ofcond.h" /* for class OFCondition */
 #include "dldefine.h"
 
-#define DCMTKHTJ2K_VERSION_STRING "DCMTK-HTJ2K 1.0.2"
+#define DCMTKHTJ2K_VERSION_STRING "OpenJPH, Version 0.26.3 (unmodified)"
 
 // global definitions for logging mechanism provided by the oflog module
 
-extern DCMTKHTJ2K_EXPORT OFLogger DCM_ht2kLogger;
+extern DCMTKHTJ2K_EXPORT OFLogger DCM_htJ2kLogger;
 
-#define DCMTKHTJ2K_TRACE(msg) OFLOG_TRACE(DCM_ht2kLogger, msg)
-#define DCMTKHTJ2K_DEBUG(msg) OFLOG_DEBUG(DCM_ht2kLogger, msg)
-#define DCMTKHTJ2K_INFO(msg) OFLOG_INFO(DCM_ht2kLogger, msg)
-#define DCMTKHTJ2K_WARN(msg) OFLOG_WARN(DCM_ht2kLogger, msg)
-#define DCMTKHTJ2K_ERROR(msg) OFLOG_ERROR(DCM_ht2kLogger, msg)
-#define DCMTKHTJ2K_FATAL(msg) OFLOG_FATAL(DCM_ht2kLogger, msg)
+#define DCMTKHTJ2K_TRACE(msg) OFLOG_TRACE(DCM_htJ2kLogger, msg)
+#define DCMTKHTJ2K_DEBUG(msg) OFLOG_DEBUG(DCM_htJ2kLogger, msg)
+#define DCMTKHTJ2K_INFO(msg) OFLOG_INFO(DCM_htJ2kLogger, msg)
+#define DCMTKHTJ2K_WARN(msg) OFLOG_WARN(DCM_htJ2kLogger, msg)
+#define DCMTKHTJ2K_ERROR(msg) OFLOG_ERROR(DCM_htJ2kLogger, msg)
+#define DCMTKHTJ2K_FATAL(msg) OFLOG_FATAL(DCM_htJ2kLogger, msg)
 
 // include this file in doxygen documentation
 

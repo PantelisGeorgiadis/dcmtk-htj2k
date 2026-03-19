@@ -353,7 +353,7 @@ class DCMTKHTJ2K_EXPORT HtJ2kEncoderBase : public DcmCodec {
 
 /** codec class for HT-J2K lossless only TS encoding
  */
-class DCMTKHTJ2K_EXPORT Ht2kLosslessEncoder : public HtJ2kEncoderBase {
+class DCMTKHTJ2K_EXPORT HtJ2kLosslessEncoder : public HtJ2kEncoderBase {
  public:
   /** returns the transfer syntax that this particular codec
    *  is able to encode

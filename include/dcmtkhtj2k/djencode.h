@@ -8,7 +8,7 @@
 #include "djutils.h"
 
 class HtJ2kCodecParameter;
-class Ht2kLosslessEncoder;
+class HtJ2kLosslessEncoder;
 class HtJ2kRPCLLosslessEncoder;
 class HtJ2kLossyEncoder;
 
@@ -56,9 +56,9 @@ class DCMTKHTJ2K_EXPORT HtJ2kEncoderRegistration {
    */
   static void cleanup();
 
-  /** get version information of the CharLS library.
-   *  Typical output format: "CharLS, Revision 55020 (modified)"
-   *  @return name and version number of the CharLS library
+  /** get version information of the OpenJPH library.
+   *  Typical output format: "OpenJPH, Revision 55020 (modified)"
+   *  @return name and version number of the OpenJPH library
    */
   static OFString getLibraryVersionString();
 
@@ -70,7 +70,7 @@ class DCMTKHTJ2K_EXPORT HtJ2kEncoderRegistration {
   static HtJ2kCodecParameter *cp_;
 
   /// pointer to encoder for lossless HT-J2K
-  static Ht2kLosslessEncoder *losslessencoder_;
+  static HtJ2kLosslessEncoder *losslessencoder_;
 
   /// pointer to encoder for RPCL lossless HT-J2K
   static HtJ2kRPCLLosslessEncoder *rpcllosslessencoder_;

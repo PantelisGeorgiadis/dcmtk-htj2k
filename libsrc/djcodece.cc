@@ -51,7 +51,7 @@ BEGIN_EXTERN_C
 #endif
 END_EXTERN_C
 
-E_TransferSyntax Ht2kLosslessEncoder::supportedTransferSyntax() const {
+E_TransferSyntax HtJ2kLosslessEncoder::supportedTransferSyntax() const {
   return EXS_HighThroughputJPEG2000LosslessOnly;
 }
 

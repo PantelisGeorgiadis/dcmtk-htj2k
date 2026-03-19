@@ -8,7 +8,7 @@
 // initialization of static members
 OFBool HtJ2kEncoderRegistration::registered_ = OFFalse;
 HtJ2kCodecParameter *HtJ2kEncoderRegistration::cp_ = NULL;
-Ht2kLosslessEncoder *HtJ2kEncoderRegistration::losslessencoder_ = NULL;
+HtJ2kLosslessEncoder *HtJ2kEncoderRegistration::losslessencoder_ = NULL;
 HtJ2kRPCLLosslessEncoder *HtJ2kEncoderRegistration::rpcllosslessencoder_ = NULL;
 HtJ2kLossyEncoder *HtJ2kEncoderRegistration::lossyencoder_ = NULL;
 
@@ -26,7 +26,7 @@ void HtJ2kEncoderRegistration::registerCodecs(
                                   convertToSC, EHTJ2KPC_restore, OFFalse);
 
     if (cp_) {
-      losslessencoder_ = new Ht2kLosslessEncoder();
+      losslessencoder_ = new HtJ2kLosslessEncoder();
       if (losslessencoder_)
         DcmCodecList::registerCodec(losslessencoder_, NULL, cp_);
       rpcllosslessencoder_ = new HtJ2kRPCLLosslessEncoder();
