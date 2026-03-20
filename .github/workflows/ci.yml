@@ -99,23 +99,64 @@ jobs:
       - name: Install MinGW
         shell: pwsh
         run: choco install mingw --no-progress -y
-      - name: Add MinGW to PATH
+      - name: Ensure MinGW make on PATH
         shell: pwsh
         run: |
-          $mingwBin = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
-          if (!(Test-Path $mingwBin)) {
-            throw "MinGW bin path not found: $mingwBin"
+          # Prefer existing PATH if mingw32-make is already available.
+          $makeCmd = Get-Command mingw32-make.exe -ErrorAction SilentlyContinue
+          if (-not $makeCmd) {
+            $candidate = Get-ChildItem `
+              -Path "C:\ProgramData\chocoportable\lib\mingw\tools\install" `
+              -Recurse -Filter "mingw32-make.exe" `
+              -ErrorAction SilentlyContinue |
+              Select-Object -First 1
+            if (-not $candidate) {
+              throw "mingw32-make.exe not found after MinGW install."
+            }
+            $binDir = Split-Path $candidate.FullName -Parent
+            # In GitHub Actions, update PATH for subsequent steps via GITHUB_PATH.
+            # When running locally, GITHUB_PATH/GITHUB_ENV won't exist, so we update $env:PATH directly.
+            if ($env:GITHUB_PATH) {
+              $binDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            } else {
+              $env:PATH = "$binDir;$env:PATH"
+            }
           }
-          "PATH=$mingwBin;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Verify Emscripten and MinGW tools
-        shell: pwsh
+        shell: cmd
         run: |
+          setlocal EnableExtensions
+          set "EMSDK_ENV="
+          if defined EMSDK if exist "%EMSDK%\emsdk_env.bat" set "EMSDK_ENV=%EMSDK%\emsdk_env.bat"
+          if not defined EMSDK_ENV if exist "C:\emsdk\emsdk_env.bat" set "EMSDK_ENV=C:\emsdk\emsdk_env.bat"
+          if not defined EMSDK_ENV if exist "%USERPROFILE%\.emsdk\emsdk_env.bat" set "EMSDK_ENV=%USERPROFILE%\.emsdk\emsdk_env.bat"
+          if not defined EMSDK_ENV if exist "%USERPROFILE%\emsdk\emsdk_env.bat" set "EMSDK_ENV=%USERPROFILE%\emsdk\emsdk_env.bat"
+
+          if defined EMSDK_ENV (
+            call "%EMSDK_ENV%" >nul
+          )
+
+          where emcc
           emcc -v
+          where emcmake
           emcmake --version
+          where mingw32-make
           mingw32-make --version
       - name: Build WASM library
         shell: cmd
-        run: build_wasm.bat
+        run: |
+          setlocal EnableExtensions
+          set "EMSDK_ENV="
+          if defined EMSDK if exist "%EMSDK%\emsdk_env.bat" set "EMSDK_ENV=%EMSDK%\emsdk_env.bat"
+          if not defined EMSDK_ENV if exist "C:\emsdk\emsdk_env.bat" set "EMSDK_ENV=C:\emsdk\emsdk_env.bat"
+          if not defined EMSDK_ENV if exist "%USERPROFILE%\.emsdk\emsdk_env.bat" set "EMSDK_ENV=%USERPROFILE%\.emsdk\emsdk_env.bat"
+          if not defined EMSDK_ENV if exist "%USERPROFILE%\emsdk\emsdk_env.bat" set "EMSDK_ENV=%USERPROFILE%\emsdk\emsdk_env.bat"
+
+          if defined EMSDK_ENV (
+            call "%EMSDK_ENV%" >nul
+          )
+
+          build_wasm.bat
       - name: Archive WASM artifacts
         uses: actions/upload-artifact@v4
         with:
