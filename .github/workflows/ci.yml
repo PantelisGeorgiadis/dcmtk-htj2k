@@ -65,3 +65,61 @@ jobs:
           path: |
             build/${{env.BUILD_TYPE}}
           compression-level: 9
+
+  build-windows-msvc2022:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Setup MSVC 2022 environment
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Build library with MSVC 2022
+        shell: cmd
+        run: build.bat %BUILD_TYPE%
+      - name: Run tests (MSVC 2022)
+        shell: pwsh
+        run: ./build/tests/${{env.BUILD_TYPE}}/dcmtkhtj2k_tests.exe
+      - name: Archive MSVC 2022 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcmtk-htj2k-build-windows-msvc2022
+          path: |
+            build/${{env.BUILD_TYPE}}
+          compression-level: 9
+
+  build-windows-wasm:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Setup Emscripten SDK
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+      - name: Install MinGW
+        shell: pwsh
+        run: choco install mingw --no-progress -y
+      - name: Add MinGW to PATH
+        shell: pwsh
+        run: |
+          $mingwBin = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+          if (!(Test-Path $mingwBin)) {
+            throw "MinGW bin path not found: $mingwBin"
+          }
+          "PATH=$mingwBin;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Verify Emscripten and MinGW tools
+        shell: pwsh
+        run: |
+          emcc -v
+          emcmake --version
+          mingw32-make --version
+      - name: Build WASM library
+        shell: cmd
+        run: build_wasm.bat
+      - name: Archive WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcmtk-htj2k-build-windows-wasm
+          path: |
+            build_wasm/${{env.BUILD_TYPE}}
+          compression-level: 9
