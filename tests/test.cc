@@ -399,6 +399,14 @@ TEST(CodecTest, BasicColorCompressDecompressLossless) {
           .good());
   ASSERT_TRUE(readDataset->canWriteXfer(EXS_LittleEndianExplicit));
 
+  // Verify photometric interpretation is updated to YBR_RCT
+  OFString photometricInterpretation;
+  ASSERT_TRUE(readDataset
+                  ->findAndGetOFString(DCM_PhotometricInterpretation,
+                                       photometricInterpretation)
+                  .good());
+  ASSERT_EQ(photometricInterpretation, "YBR_RCT");
+
   Uint8 const *decoded = nullptr;
   unsigned long decodedCount = 0;
   ASSERT_TRUE(

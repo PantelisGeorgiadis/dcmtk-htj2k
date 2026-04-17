@@ -268,7 +268,7 @@ class DCMTKHTJ2K_EXPORT HtJ2kDecoderBase : public DcmCodec {
    *  frame in the compressed pixel sequence. This method uses various
    * approaches to compute the number of fragments for a frame, including a
    * check of the offset table and checking the start of each fragment for JPEG
-   * SOI markers.
+   * SOC markers.
    *  @param numberOfFrames total number of frames of the DICOM object
    *  @param currentFrame index of current frame (0..numberOfFrames-1)
    *  @param startItem index of fragment (pixel item) the frame starts with
@@ -285,8 +285,8 @@ class DCMTKHTJ2K_EXPORT HtJ2kDecoderBase : public DcmCodec {
   /** check whether the given buffer contains a HT-J2K start-of-image code
    *  @param fragmentData pointer to 4 or more bytes of HT-J2K data
    *  @returns true if the first four bytes of the code stream indicate that
-   *     this fragment is the start of a new HT-J2K image, i.e. starts with
-   *     an SOI marker followed by SOF, COM or APPn.
+   *     this fragment is the start of a new HT-J2K image,
+   *     i.e. codestream starts with SOC (FF4F), followed by SIZ (FF51).
    */
   static OFBool isJ2KStartOfImage(Uint8 *fragmentData);
 

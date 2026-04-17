@@ -529,6 +529,13 @@ OFCondition HtJ2kEncoderBase::losslessRawEncode(
 
   if (compressedSize > 0) compressionRatio = uncompressedSize / compressedSize;
 
+  // update photometric interpretation for color images
+  if (result.good() && samplesPerPixel > 1) {
+    result = dataset->putAndInsertString(
+        DCM_PhotometricInterpretation,
+        djrp->useLosslessProcess() ? "YBR_RCT" : "YBR_ICT");
+  }
+
   // byte swap pixel data back to local endian if necessary
   if (byteSwapped) {
     swapIfNecessary(gLocalByteOrder, EBO_LittleEndian,
@@ -708,6 +715,10 @@ OFCondition HtJ2kEncoderBase::RenderedEncode(
       dataset->findAndGetUint16(DCM_PixelRepresentation, pixelRepresentation);
   if (result.bad()) return result;
 
+  Uint16 samplesPerPixel = 0;
+  result = dataset->findAndGetUint16(DCM_SamplesPerPixel, samplesPerPixel);
+  if (result.bad()) return result;
+
   DcmPixelSequence *pixelSequence = NULL;
   DcmPixelItem *offsetTable = NULL;
 
@@ -762,9 +773,6 @@ OFCondition HtJ2kEncoderBase::RenderedEncode(
     unsigned long frameCount = dimage->getFrameCount();
 
     // compute original image size in bytes, ignoring any padding bits.
-    Uint16 samplesPerPixel = 0;
-    if ((dataset->findAndGetUint16(DCM_SamplesPerPixel, samplesPerPixel)).bad())
-      samplesPerPixel = 1;
     uncompressedSize = dimage->getWidth() * dimage->getHeight() *
                        bitsPerSample * frameCount * samplesPerPixel / 8.0;
 
@@ -804,6 +812,12 @@ OFCondition HtJ2kEncoderBase::RenderedEncode(
       result = dataset->putAndInsertUint16(DCM_BitsStored, bitsPerSample);
     if (result.good())
       result = dataset->putAndInsertUint16(DCM_HighBit, bitsPerSample - 1);
+    // update photometric interpretation for color images
+    if (result.good() && samplesPerPixel > 1) {
+      result = dataset->putAndInsertString(
+          DCM_PhotometricInterpretation,
+          djrp->useLosslessProcess() ? "YBR_RCT" : "YBR_ICT");
+    }
   }
 
   if (compressedSize > 0) compressionRatio = uncompressedSize / compressedSize;
