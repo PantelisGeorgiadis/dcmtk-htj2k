@@ -389,9 +389,12 @@ OFCondition HtJ2kDecoderBase::decodeFrame(
       codestream.read_headers(&mem_file);
 
       ojph::param_siz siz = codestream.access_siz();
+      ojph::param_cod cod = codestream.access_cod();
       int num_comps = siz.get_num_components();
       int width = siz.get_recon_width(0);
       int height = siz.get_recon_height(0);
+      bool usingColorTransform =
+          (num_comps == 3) && cod.is_using_color_transform();
 
       if (width != imageColumns)
         result = EC_HTJ2KImageDataMismatch;
@@ -445,6 +448,11 @@ OFCondition HtJ2kDecoderBase::decodeFrame(
                                          OFreinterpret_cast(Uint8 *, buffer),
                                          imageColumns, imageRows);
           }
+        }
+
+        // Update photometric interpretation
+        if (usingColorTransform) {
+          dataset->putAndInsertString(DCM_PhotometricInterpretation, "RGB");
         }
 
         // Clean up
@@ -522,6 +530,12 @@ OFCondition HtJ2kDecoderBase::determineDecompressedColorModel(
     // retrieve color model from given dataset
     result = dataset->findAndGetOFString(DCM_PhotometricInterpretation,
                                          decompressedColorModel);
+    // YBR_ICT (lossy) and YBR_RCT (lossless) are converted to RGB by
+    // OpenJPH's inverse color transform during decompression.
+    if (result.good() && (decompressedColorModel == "YBR_ICT" ||
+                          decompressedColorModel == "YBR_RCT")) {
+      decompressedColorModel = "RGB";
+    }
   }
   return result;
 }

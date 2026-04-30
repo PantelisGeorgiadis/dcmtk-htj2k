@@ -394,10 +394,6 @@ TEST(CodecTest, BasicColorCompressDecompressLossless) {
   DcmDataset *readDataset = readFile.getDataset();
   const E_TransferSyntax readXfer = readDataset->getOriginalXfer();
   ASSERT_EQ(readXfer, htj2kLossless);
-  ASSERT_TRUE(
-      readDataset->chooseRepresentation(EXS_LittleEndianExplicit, nullptr)
-          .good());
-  ASSERT_TRUE(readDataset->canWriteXfer(EXS_LittleEndianExplicit));
 
   // Verify photometric interpretation is updated to YBR_RCT
   OFString photometricInterpretation;
@@ -406,6 +402,18 @@ TEST(CodecTest, BasicColorCompressDecompressLossless) {
                                        photometricInterpretation)
                   .good());
   ASSERT_EQ(photometricInterpretation, "YBR_RCT");
+
+  ASSERT_TRUE(
+      readDataset->chooseRepresentation(EXS_LittleEndianExplicit, nullptr)
+          .good());
+  ASSERT_TRUE(readDataset->canWriteXfer(EXS_LittleEndianExplicit));
+
+  // Verify photometric interpretation is updated to RGB
+  ASSERT_TRUE(readDataset
+                  ->findAndGetOFString(DCM_PhotometricInterpretation,
+                                       photometricInterpretation)
+                  .good());
+  ASSERT_EQ(photometricInterpretation, "RGB");
 
   Uint8 const *decoded = nullptr;
   unsigned long decodedCount = 0;

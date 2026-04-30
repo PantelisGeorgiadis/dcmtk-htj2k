@@ -530,7 +530,7 @@ OFCondition HtJ2kEncoderBase::losslessRawEncode(
   if (compressedSize > 0) compressionRatio = uncompressedSize / compressedSize;
 
   // update photometric interpretation for color images
-  if (result.good() && samplesPerPixel > 1) {
+  if (result.good() && photometricInterpretation == "RGB") {
     result = dataset->putAndInsertString(
         DCM_PhotometricInterpretation,
         djrp->useLosslessProcess() ? "YBR_RCT" : "YBR_ICT");
@@ -562,7 +562,8 @@ OFCondition HtJ2kEncoderBase::compressRawFrame(
     ojph::codestream codestream;
     ojph::mem_outfile destinationBuffer;
 
-    bool colorTransform = (samplesPerPixel > 1);
+    // Apply color transform only for RGB input
+    bool colorTransform = (photometricInterpretation == "RGB");
     codestream.set_planar(colorTransform == false);
     codestream.set_tilepart_divisions(true, false);
     codestream.request_tlm_marker(true);
@@ -813,7 +814,7 @@ OFCondition HtJ2kEncoderBase::RenderedEncode(
     if (result.good())
       result = dataset->putAndInsertUint16(DCM_HighBit, bitsPerSample - 1);
     // update photometric interpretation for color images
-    if (result.good() && samplesPerPixel > 1) {
+    if (result.good() && photometricInterpretation == "RGB") {
       result = dataset->putAndInsertString(
           DCM_PhotometricInterpretation,
           djrp->useLosslessProcess() ? "YBR_RCT" : "YBR_ICT");
@@ -980,7 +981,8 @@ OFCondition HtJ2kEncoderBase::compressRenderedFrame(
     ojph::codestream codestream;
     ojph::mem_outfile destinationBuffer;
 
-    bool colorTransform = (samplesPerPixel > 1);
+    // Apply color transform only for RGB input
+    bool colorTransform = (photometricInterpretation == "RGB");
     codestream.set_planar(colorTransform == false);
     codestream.set_tilepart_divisions(true, false);
     codestream.request_tlm_marker(true);

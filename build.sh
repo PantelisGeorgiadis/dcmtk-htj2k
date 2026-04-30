@@ -37,7 +37,7 @@ cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
 	-DCMAKE_INSTALL_PREFIX=$OTS_DEV_SPACE/dcmtk/$BUILD_TYPE \
 	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
 	-DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded$<$<CONFIG:Debug>:Debug>'
-cmake --build . --parallel $(nproc) --config $BUILD_TYPE
+cmake --build . --parallel $(nproc 2>/dev/null || sysctl -n hw.logicalcpu) --config $BUILD_TYPE
 cmake --install . --config $BUILD_TYPE
 
 cd $OTS_DEV_SPACE
@@ -54,7 +54,7 @@ cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
 	-DCMAKE_INSTALL_PREFIX=$OTS_DEV_SPACE/openjph/$BUILD_TYPE \
 	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
 	-DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded$<$<CONFIG:Debug>:Debug>'
-cmake --build . --parallel $(nproc) --config $BUILD_TYPE
+cmake --build . --parallel $(nproc 2>/dev/null || sysctl -n hw.logicalcpu) --config $BUILD_TYPE
 cmake --install . --config $BUILD_TYPE
 
 mkdir -p $BUILD_DIR
@@ -70,5 +70,5 @@ cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
 	-DCMAKE_INSTALL_PREFIX=$BUILD_DIR_LIB \
 	-DCMAKE_POLICY_DEFAULT_CMP0091=NEW \
 	-DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded$<$<CONFIG:Debug>:Debug>'
-cmake --build . --parallel $(nproc) --config $BUILD_TYPE
+cmake --build . --parallel $(nproc 2>/dev/null || sysctl -n hw.logicalcpu) --config $BUILD_TYPE
 cmake --install . --config $BUILD_TYPE
