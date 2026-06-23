@@ -33,6 +33,9 @@
 // dcmimgle includes
 #include "dcmtk/dcmimgle/dcmimage.h" /* for class DicomImage */
 
+// dcmimage includes - registers color image support in dcmimgle
+#include "dcmtk/dcmimage/diregist.h"
+
 // HT-J2K library (OpenJPH) includes
 #include "openjph/ojph_arch.h"
 #include "openjph/ojph_codestream.h"
